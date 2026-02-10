@@ -10,9 +10,6 @@ app.use(express.json());
 const OFFICIAL_EMAIL =
   process.env.OFFICIAL_EMAIL || "nitish0505.be23@chitkara.edu.in";
 
-// ---------- Utility functions ----------
-
-// Fibonacci
 function fibonacciSeries(n) {
   if (!Number.isInteger(n) || n < 0) {
     throw new Error("fibonacci must be a non-negative integer");
@@ -26,7 +23,6 @@ function fibonacciSeries(n) {
   return res;
 }
 
-// Prime check
 function isPrime(num) {
   if (!Number.isInteger(num) || num < 2) return false;
   if (num === 2) return true;
@@ -37,7 +33,6 @@ function isPrime(num) {
   return true;
 }
 
-// GCD & LCM for arrays
 function gcd(a, b) {
   a = Math.abs(a);
   b = Math.abs(b);
@@ -59,14 +54,12 @@ function arrayLcm(arr) {
   return arr.reduce((acc, v) => lcmTwo(acc, v));
 }
 
-// AI call using Gemini
+
 async function callAI(question) {
   const apiKey = process.env.AI_API_KEY;
   if (!apiKey) throw new Error("AI API key not configured");
 
-  const url =
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
   const resp = await axios.post(
     `${url}?key=${apiKey}`,
     {
@@ -76,17 +69,12 @@ async function callAI(question) {
       headers: { "Content-Type": "application/json" },
     }
   );
-
   const text =
     resp.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
-
   const singleWord = text.split(/\s+/)[0].replace(/[^A-Za-z]/g, "");
   return singleWord || "Unknown";
 }
 
-// ---------- Routes ----------
-
-// GET /health
 app.get("/health", (req, res) => {
   return res.status(200).json({
     is_success: true,
@@ -94,7 +82,6 @@ app.get("/health", (req, res) => {
   });
 });
 
-// POST /bfhl
 app.post("/bfhl", async (req, res) => {
   try {
     const body = req.body || {};
@@ -109,8 +96,6 @@ app.post("/bfhl", async (req, res) => {
     }
 
     const key = keys[0];
-
-    // ---------- fibonacci ----------
     if (key === "fibonacci") {
       const n = body.fibonacci;
       if (!Number.isInteger(n) || n < 0 || n > 1000) {
@@ -128,7 +113,6 @@ app.post("/bfhl", async (req, res) => {
       });
     }
 
-    // ---------- prime ----------
     if (key === "prime") {
       const arr = body.prime;
       if (!Array.isArray(arr) || arr.length === 0) {
@@ -157,7 +141,6 @@ app.post("/bfhl", async (req, res) => {
       });
     }
 
-    // ---------- lcm ----------
     if (key === "lcm") {
       const arr = body.lcm;
       if (!Array.isArray(arr) || arr.length === 0) {
@@ -186,7 +169,6 @@ app.post("/bfhl", async (req, res) => {
       });
     }
 
-    // ---------- hcf ----------
     if (key === "hcf") {
       const arr = body.hcf;
       if (!Array.isArray(arr) || arr.length === 0) {
@@ -215,7 +197,6 @@ app.post("/bfhl", async (req, res) => {
       });
     }
 
-    // ---------- AI ----------
     if (key === "AI") {
       const q = body.AI;
       if (typeof q !== "string" || !q.trim()) {
@@ -229,7 +210,6 @@ app.post("/bfhl", async (req, res) => {
       let answer = "";
       const lower = q.toLowerCase();
 
-      // Hard-coded for the test question
       if (lower.includes("capital") && lower.includes("maharashtra")) {
         answer = "Mumbai";
       } else {
@@ -240,18 +220,14 @@ app.post("/bfhl", async (req, res) => {
           answer = "Unknown";
         }
       }
-
       const singleWord =
         answer.split(/\s+/)[0].replace(/[^A-Za-z]/g, "") || "Unknown";
-
       return res.status(200).json({
         is_success: true,
         official_email: OFFICIAL_EMAIL,
         data: singleWord,
       });
     }
-
-    // ---------- invalid key ----------
     return res.status(400).json({
       is_success: false,
       official_email: OFFICIAL_EMAIL,
@@ -266,7 +242,6 @@ app.post("/bfhl", async (req, res) => {
     });
   }
 });
-
 const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
